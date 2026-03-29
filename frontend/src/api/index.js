@@ -75,3 +75,26 @@ export const gstApi = {
   downloadReport: (from, to) =>
     api.get('/gst/report', { params: { from, to }, responseType: 'blob' }),
 };
+
+export const trackingApi = {
+  get: (expenseId) => api.get(`/tracking/${expenseId}`),
+};
+
+export const groupsApi = {
+  list: () => api.get('/groups'),
+  create: (data) => api.post('/groups', data),
+  get: (id) => api.get(`/groups/${id}`),
+  addMember: (id, data) => api.post(`/groups/${id}/members`, data),
+  addExpense: (id, data) => api.post(`/groups/${id}/expenses`, data),
+  simplify: (id) => api.get(`/groups/${id}/simplify`),
+};
+
+export const employeeAnalyticsApi = {
+  summary: (params) => api.get('/employee-analytics/summary', { params }),
+  trends: (params) => api.get('/employee-analytics/trends', { params }),
+  categories: (params) => api.get('/employee-analytics/categories', { params }),
+  topExpenses: (params) => api.get('/employee-analytics/top-expenses', { params }),
+  recent: (params) => api.get('/employee-analytics/recent', { params }),
+  insights: (params) => api.get('/employee-analytics/insights', { params }),
+  comparison: () => api.get('/employee-analytics/comparison'),
+};

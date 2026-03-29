@@ -1,12 +1,43 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import NotificationBell from './NotificationBell';
+import { useEffect, useState } from "react";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import NotificationBell from "./NotificationBell";
 
-const linkClass = ({ isActive }) => (isActive ? 'nav-link active' : 'nav-link');
+const linkClass = ({ isActive }) => (isActive ? "nav-link active" : "nav-link");
 
 export default function Layout() {
-  const { user, company, logout, canAccessApprovals, canAccessAnalytics, isAdmin } = useAuth();
+  const {
+    user,
+    company,
+    logout,
+    canAccessApprovals,
+    canAccessAnalytics,
+    isAdmin,
+  } = useAuth();
   const navigate = useNavigate();
+  const [theme, setTheme] = useState(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "light" || savedTheme === "dark") return savedTheme;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
+
+  const initials = (user?.name || "U")
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   const isEmployee = user?.role === 'employee';
   const showApproverBlock = canAccessApprovals && !isEmployee;
@@ -15,11 +46,11 @@ export default function Layout() {
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="sidebar-brand">
-          <span className="brand-mark">R</span>
-          <div>
-            <div className="brand-title">Reimburse</div>
-            <div className="brand-sub">{company?.name}</div>
+        <div className="sidebar-brand card">
+          <span className="brand-avatar">{initials}</span>
+          <div className="brand-profile-copy">
+            <div className="brand-title">{user?.name}</div>
+            <div className="brand-sub">{user?.email}</div>
           </div>
         </div>
         <nav className="sidebar-nav">
@@ -27,8 +58,7 @@ export default function Layout() {
           <NavLink to="/" end className={linkClass}>
             Dashboard
           </NavLink>
-
-          {isEmployee ? (
+          {user?.role === "employee" ? (
             <>
               <div className="nav-section-label">My claims</div>
               <NavLink to="/submit" className={linkClass}>
@@ -37,10 +67,21 @@ export default function Layout() {
               <NavLink to="/my-expenses" className={linkClass}>
                 My expenses
               </NavLink>
+              <NavLink to="/groups" className={linkClass}>
+                Groups (Splitwise)
+              </NavLink>
+              <NavLink to="/analytics/personal" className={linkClass}>
+                Personal Analytics
+              </NavLink>
             </>
-          ) : null}
-
-          {showApproverBlock ? (
+          ) : (
+            <>
+              <NavLink to="/groups" className={linkClass}>
+                Groups (Splitwise)
+              </NavLink>
+            </>
+          )}
+          {canAccessApprovals ? (
             <>
               <div className="nav-section-label">Approvals &amp; insights</div>
               <NavLink to="/approvals" className={linkClass}>
@@ -79,17 +120,27 @@ export default function Layout() {
       <div className="main-area">
         <header className="topbar">
           <div className="topbar-user">
-            <span className="muted">{user?.name}</span>
+            <span className="muted">{company?.name}</span>
             <span className="role-pill">{user?.role}</span>
           </div>
           <div className="topbar-actions">
+            <button
+              type="button"
+              className="btn btn-ghost topbar-pill"
+              title="Switch theme"
+              onClick={toggleTheme}
+              aria-label="Toggle light and dark theme"
+              aria-pressed={theme === "dark"}
+            >
+              Theme: {theme === "dark" ? "Dark" : "Light"}
+            </button>
             <NotificationBell />
             <button
               type="button"
               className="btn btn-ghost"
               onClick={() => {
                 logout();
-                navigate('/login');
+                navigate("/login");
               }}
             >
               Log out

@@ -29,6 +29,9 @@ app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/audit', require('./routes/audit'));
 app.use('/api/budgets', require('./routes/budgets'));
 app.use('/api/gst', require('./routes/gst'));
+app.use('/api/tracking', require('./routes/tracking'));
+app.use('/api/employee-analytics', require('./routes/employee-analytics'));
+app.use('/api/groups', require('./routes/groups'));
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
