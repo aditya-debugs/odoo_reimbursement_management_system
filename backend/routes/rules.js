@@ -44,14 +44,15 @@ router.post(
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-    const { name, description, rule_type, percentage_threshold, specific_approver_id, steps } = req.body;
+    const { name, description, rule_type, percentage_threshold, specific_approver_id, sequential_conditional_override, steps } =
+      req.body;
 
     try {
       const created = await withTransaction(async (client) => {
         const r = await client.query(
           `INSERT INTO approval_rules (
-            company_id, name, description, rule_type, percentage_threshold, specific_approver_id
-          ) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
+            company_id, name, description, rule_type, percentage_threshold, specific_approver_id, sequential_conditional_override
+          ) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
           [
             req.user.company_id,
             name,
@@ -59,6 +60,7 @@ router.post(
             rule_type,
             percentage_threshold != null ? percentage_threshold : null,
             specific_approver_id || null,
+            Boolean(sequential_conditional_override),
           ]
         );
         const rule = r.rows[0];
@@ -97,7 +99,8 @@ router.patch(
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
     const { id } = req.params;
-    const { name, description, rule_type, percentage_threshold, specific_approver_id, is_active, steps } = req.body;
+    const { name, description, rule_type, percentage_threshold, specific_approver_id, sequential_conditional_override, is_active, steps } =
+      req.body;
 
     try {
       const updated = await withTransaction(async (client) => {
@@ -129,6 +132,10 @@ router.patch(
         if (specific_approver_id !== undefined) {
           fields.push(`specific_approver_id = $${i++}`);
           vals.push(specific_approver_id || null);
+        }
+        if (sequential_conditional_override !== undefined) {
+          fields.push(`sequential_conditional_override = $${i++}`);
+          vals.push(Boolean(sequential_conditional_override));
         }
         if (is_active !== undefined) {
           fields.push(`is_active = $${i++}`);

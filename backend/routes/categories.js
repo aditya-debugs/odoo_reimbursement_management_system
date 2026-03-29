@@ -28,12 +28,12 @@ router.post(
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-    const { name, description } = req.body;
+    const { name, description, gst_applicable, gst_rate_percent } = req.body;
     try {
       const r = await query(
-        `INSERT INTO expense_categories (company_id, name, description)
-         VALUES ($1, $2, $3) RETURNING *`,
-        [req.user.company_id, name, description || null]
+        `INSERT INTO expense_categories (company_id, name, description, gst_applicable, gst_rate_percent)
+         VALUES ($1, $2, $3, COALESCE($4, false), COALESCE($5, 18)) RETURNING *`,
+        [req.user.company_id, name, description || null, gst_applicable, gst_rate_percent]
       );
       return res.status(201).json(r.rows[0]);
     } catch (err) {
@@ -53,7 +53,7 @@ router.patch(
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
     const { id } = req.params;
-    const { name, description, is_active } = req.body;
+    const { name, description, is_active, gst_applicable, gst_rate_percent } = req.body;
     const fields = [];
     const vals = [];
     let i = 1;
@@ -68,6 +68,14 @@ router.patch(
     if (is_active !== undefined) {
       fields.push(`is_active = $${i++}`);
       vals.push(Boolean(is_active));
+    }
+    if (gst_applicable !== undefined) {
+      fields.push(`gst_applicable = $${i++}`);
+      vals.push(Boolean(gst_applicable));
+    }
+    if (gst_rate_percent !== undefined) {
+      fields.push(`gst_rate_percent = $${i++}`);
+      vals.push(gst_rate_percent);
     }
     if (!fields.length) return res.status(400).json({ message: 'No updates' });
     vals.push(id, req.user.company_id);

@@ -2,12 +2,13 @@ const express = require('express');
 const { body, param, validationResult } = require('express-validator');
 const { query, withTransaction } = require('../db');
 const auth = require('../middleware/auth');
-const roles = require('../middleware/roles');
+const rolesMiddleware = require('../middleware/roles');
 const { processApprovalAction } = require('../services/approval.service');
+const { appendAuditBlockQuery } = require('../services/audit.service');
 
 const router = express.Router();
 
-router.get('/pending', auth, roles('manager', 'admin'), async (req, res) => {
+router.get('/pending', auth, rolesMiddleware.canAccessApprovals, async (req, res) => {
   try {
     let sql;
     let params;
@@ -43,8 +44,12 @@ router.get('/pending', auth, roles('manager', 'admin'), async (req, res) => {
 router.post(
   '/:id/action',
   auth,
-  roles('manager', 'admin'),
-  [param('id').isUUID(), body('action').isIn(['approve', 'reject'])],
+  rolesMiddleware.canAccessApprovals,
+  [
+    param('id').isUUID(),
+    body('action').isIn(['approve', 'reject']),
+    body('comments').trim().notEmpty().withMessage('Comment is required'),
+  ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
@@ -60,9 +65,16 @@ router.post(
           userRole: req.user.role,
           companyId: req.user.company_id,
           action,
-          comments: comments || null,
+          comments,
         })
       );
+      await appendAuditBlockQuery({
+        companyId: req.user.company_id,
+        action: action === 'approve' ? 'approval_approve' : 'approval_reject',
+        actorId: req.user.id,
+        expenseId: result.expenseId,
+        payload: { expenseApprovalId, expenseStatus: result.expenseStatus },
+      });
       return res.json(result);
     } catch (err) {
       const status = err.status || 500;

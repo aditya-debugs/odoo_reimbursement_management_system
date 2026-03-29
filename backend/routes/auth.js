@@ -8,6 +8,31 @@ const auth = require('../middleware/auth');
 
 const router = express.Router();
 
+router.get('/countries', async (_req, res) => {
+  try {
+    const { data } = await axios.get(
+      'https://restcountries.com/v3.1/all?fields=name,cca2,currencies',
+      { timeout: 20000 }
+    );
+    const list = data
+      .map((c) => {
+        const code = c.currencies ? Object.keys(c.currencies)[0] : null;
+        return {
+          name: c.name.common,
+          code: c.cca2,
+          currency_code: code,
+          currency_symbol: code ? c.currencies[code]?.symbol || code : null,
+        };
+      })
+      .filter((x) => x.name)
+      .sort((a, b) => a.name.localeCompare(b.name));
+    return res.json(list);
+  } catch (err) {
+    console.error(err);
+    return res.status(502).json({ message: 'Could not load countries' });
+  }
+});
+
 const fetchCurrencyForCountry = async (countryName) => {
   try {
     const res = await axios.get(

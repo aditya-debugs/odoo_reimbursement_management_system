@@ -5,6 +5,8 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
+const { runMigrations } = require('./db/migrate');
+
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
@@ -24,6 +26,9 @@ app.use('/api/approvals', require('./routes/approvals'));
 app.use('/api/rules', require('./routes/rules'));
 app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/audit', require('./routes/audit'));
+app.use('/api/budgets', require('./routes/budgets'));
+app.use('/api/gst', require('./routes/gst'));
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
@@ -34,9 +39,14 @@ app.use((err, _req, res, _next) => {
 
 const server = http.createServer(app);
 
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
   console.log(`API listening on http://localhost:${PORT}`);
   console.log('Leave this terminal open while you use the app. Press Ctrl+C to stop the server.');
+  try {
+    await runMigrations();
+  } catch (e) {
+    console.error('Migrations did not complete:', e.message);
+  }
 });
 
 server.on('error', (err) => {

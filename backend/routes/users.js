@@ -33,7 +33,7 @@ router.post(
     body('name').trim().notEmpty(),
     body('email').isEmail().normalizeEmail(),
     body('password').isLength({ min: 6 }),
-    body('role').isIn(['admin', 'manager', 'employee']),
+    body('role').isIn(['admin', 'manager', 'employee', 'financer', 'director']),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -103,7 +103,7 @@ router.patch(
         vals.push(name);
       }
       if (role != null) {
-        if (!['admin', 'manager', 'employee'].includes(role)) {
+        if (!['admin', 'manager', 'employee', 'financer', 'director'].includes(role)) {
           return res.status(400).json({ message: 'Invalid role' });
         }
         fields.push(`role = $${i++}`);

@@ -6,7 +6,7 @@ const roles = require('../middleware/roles');
 const router = express.Router();
 
 const scopeSql = (user) => {
-  if (user.role === 'admin') {
+  if (user.role === 'admin' || user.role === 'financer' || user.role === 'director') {
     return { clause: 'e.company_id = $1', params: [user.company_id] };
   }
   return {
@@ -15,7 +15,7 @@ const scopeSql = (user) => {
   };
 };
 
-router.get('/summary', auth, roles('admin', 'manager'), async (req, res) => {
+router.get('/summary', auth, roles.canAccessAnalytics, async (req, res) => {
   const { from, to } = req.query;
   const s = scopeSql(req.user);
   const conds = [s.clause];
@@ -51,7 +51,7 @@ router.get('/summary', auth, roles('admin', 'manager'), async (req, res) => {
   }
 });
 
-router.get('/monthly', auth, roles('admin', 'manager'), async (req, res) => {
+router.get('/monthly', auth, roles.canAccessAnalytics, async (req, res) => {
   const { from, to } = req.query;
   const s = scopeSql(req.user);
   const conds = [s.clause, `e.status = 'approved'`];
@@ -82,7 +82,7 @@ router.get('/monthly', auth, roles('admin', 'manager'), async (req, res) => {
   }
 });
 
-router.get('/categories', auth, roles('admin', 'manager'), async (req, res) => {
+router.get('/categories', auth, roles.canAccessAnalytics, async (req, res) => {
   const { from, to } = req.query;
   const s = scopeSql(req.user);
   const conds = [s.clause, `e.status = 'approved'`];
@@ -114,7 +114,7 @@ router.get('/categories', auth, roles('admin', 'manager'), async (req, res) => {
   }
 });
 
-router.get('/employees', auth, roles('admin'), async (req, res) => {
+router.get('/employees', auth, roles('admin', 'financer', 'director'), async (req, res) => {
   const { from, to } = req.query;
   const conds = ['e.company_id = $1', `e.status = 'approved'`];
   const params = [req.user.company_id];
