@@ -15,7 +15,8 @@ export const usersApi = {
 };
 
 export const categoriesApi = {
-  list: () => api.get('/categories'),
+  /** Pass `{ all: 'true' }` as admin to include inactive categories. */
+  list: (params) => api.get('/categories', { params }),
   create: (body) => api.post('/categories', body),
   update: (id, body) => api.patch(`/categories/${id}`, body),
   remove: (id) => api.delete(`/categories/${id}`),

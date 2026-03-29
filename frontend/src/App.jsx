@@ -16,6 +16,7 @@ import AdminRules from './pages/AdminRules';
 import AllExpenses from './pages/AllExpenses';
 import Analytics from './pages/Analytics';
 import AdminAudit from './pages/AdminAudit';
+import AdminCategories from './pages/AdminCategories';
 
 function PublicOnly({ children }) {
   const { user, loading } = useAuth();
@@ -55,6 +56,7 @@ export default function App() {
               <Route path="/approvals" element={<ApprovalQueue />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/categories" element={<AdminCategories />} />
               <Route path="/admin/rules" element={<AdminRules />} />
               <Route path="/admin/expenses" element={<AllExpenses />} />
               <Route path="/admin/audit" element={<AdminAudit />} />

@@ -57,10 +57,21 @@ export default function SubmitExpense() {
         ...f,
         amount: data.amount != null ? String(data.amount) : f.amount,
         expense_date: data.date || f.expense_date,
-        title: data.vendor && !f.title ? data.vendor : f.title,
+        title: data.vendor?.trim() ? data.vendor.trim() : f.title,
         category_id: data.suggested_category_id || f.category_id,
+        currency_code: data.suggested_currency_code || f.currency_code,
       }));
-      toast.success('OCR suggestions applied — review before submit');
+      if (data.ai_refined) {
+        toast.success('OCR + AI review applied — please verify before submit');
+      } else if (data.ocr_ai_error === 'insufficient_quota') {
+        toast.error(
+          'AI provider quota/billing issue — used local OCR only. Check your OpenAI or Groq account. Verify title and date.'
+        );
+      } else if (data.ocr_ai_error && data.ocr_ai_error !== 'invalid_response') {
+        toast.error('AI receipt review failed — local OCR only. Please verify all fields.');
+      } else {
+        toast.success('OCR suggestions applied — review before submit');
+      }
     } catch {
       toast.error('OCR failed');
     } finally {

@@ -128,6 +128,20 @@ a:hover {
   padding: 0 0.75rem;
 }
 
+.nav-section-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+  padding: 0.85rem 0.75rem 0.35rem;
+  margin-top: 0.25rem;
+}
+
+.nav-section-label:first-child {
+  padding-top: 0.25rem;
+}
+
 .nav-link {
   padding: 0.6rem 0.75rem;
   border-radius: 8px;

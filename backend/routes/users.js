@@ -34,6 +34,10 @@ router.post(
     body('email').isEmail().normalizeEmail(),
     body('password').isLength({ min: 6 }),
     body('role').isIn(['admin', 'manager', 'employee', 'financer', 'director']),
+    body('manager_id')
+      .optional({ nullable: true, checkFalsy: true })
+      .isUUID()
+      .withMessage('Manager must be a valid user id'),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -70,6 +74,9 @@ router.post(
       return res.status(201).json(r.rows[0]);
     } catch (err) {
       console.error(err);
+      if (err.code === '22P02') {
+        return res.status(400).json({ message: 'Invalid id format (e.g. manager id must be a UUID)' });
+      }
       return res.status(500).json({ message: 'Failed to create user' });
     }
   }
@@ -77,7 +84,13 @@ router.post(
 
 router.patch(
   '/:id',
-  [param('id').isUUID()],
+  [
+    param('id').isUUID(),
+    body('manager_id')
+      .optional({ nullable: true, checkFalsy: true })
+      .isUUID()
+      .withMessage('Manager must be a valid user id'),
+  ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
@@ -145,6 +158,9 @@ router.patch(
       return res.json(r.rows[0]);
     } catch (err) {
       console.error(err);
+      if (err.code === '22P02') {
+        return res.status(400).json({ message: 'Invalid id format (e.g. manager id must be a UUID)' });
+      }
       return res.status(500).json({ message: 'Failed to update user' });
     }
   }

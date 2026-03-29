@@ -8,6 +8,10 @@ export default function Layout() {
   const { user, company, logout, canAccessApprovals, canAccessAnalytics, isAdmin } = useAuth();
   const navigate = useNavigate();
 
+  const isEmployee = user?.role === 'employee';
+  const showApproverBlock = canAccessApprovals && !isEmployee;
+  const showAdminBlock = isAdmin;
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -19,11 +23,14 @@ export default function Layout() {
           </div>
         </div>
         <nav className="sidebar-nav">
+          <div className="nav-section-label">Overview</div>
           <NavLink to="/" end className={linkClass}>
             Dashboard
           </NavLink>
-          {user?.role === 'employee' ? (
+
+          {isEmployee ? (
             <>
+              <div className="nav-section-label">My claims</div>
               <NavLink to="/submit" className={linkClass}>
                 Submit expense
               </NavLink>
@@ -32,22 +39,29 @@ export default function Layout() {
               </NavLink>
             </>
           ) : null}
-          {canAccessApprovals ? (
+
+          {showApproverBlock ? (
             <>
+              <div className="nav-section-label">Approvals &amp; insights</div>
               <NavLink to="/approvals" className={linkClass}>
                 Approval queue
               </NavLink>
+              {canAccessAnalytics ? (
+                <NavLink to="/analytics" className={linkClass}>
+                  Analytics
+                </NavLink>
+              ) : null}
             </>
           ) : null}
-          {canAccessAnalytics ? (
-            <NavLink to="/analytics" className={linkClass}>
-              Analytics
-            </NavLink>
-          ) : null}
-          {isAdmin ? (
+
+          {showAdminBlock ? (
             <>
+              <div className="nav-section-label">Administration</div>
               <NavLink to="/admin/users" className={linkClass}>
                 Users
+              </NavLink>
+              <NavLink to="/admin/categories" className={linkClass}>
+                Categories
               </NavLink>
               <NavLink to="/admin/rules" className={linkClass}>
                 Approval rules

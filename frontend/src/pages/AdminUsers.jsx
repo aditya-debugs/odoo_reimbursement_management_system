@@ -46,7 +46,8 @@ export default function AdminUsers() {
       setForm(emptyUser);
       await load();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed');
+      const first = err.response?.data?.errors?.[0]?.msg;
+      toast.error(err.response?.data?.message || first || 'Failed');
     } finally {
       setBusy(false);
     }
@@ -168,12 +169,18 @@ export default function AdminUsers() {
             </select>
           </label>
           <label>
-            Manager (user id, optional)
-            <input
+            Manager (optional)
+            <select
               value={form.manager_id}
               onChange={(e) => setForm((f) => ({ ...f, manager_id: e.target.value }))}
-              placeholder="UUID"
-            />
+            >
+              <option value="">None</option>
+              {rows.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.name} ({u.email})
+                </option>
+              ))}
+            </select>
           </label>
           <label className="checkbox-row">
             <input

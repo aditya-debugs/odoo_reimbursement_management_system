@@ -8,10 +8,16 @@ const router = express.Router();
 
 router.get('/', auth, async (req, res) => {
   try {
-    const r = await query(
-      `SELECT * FROM expense_categories WHERE company_id = $1 AND is_active = true ORDER BY name`,
-      [req.user.company_id]
-    );
+    const adminAll = req.user.role === 'admin' && String(req.query.all) === 'true';
+    const r = adminAll
+      ? await query(
+          `SELECT * FROM expense_categories WHERE company_id = $1 ORDER BY name`,
+          [req.user.company_id]
+        )
+      : await query(
+          `SELECT * FROM expense_categories WHERE company_id = $1 AND is_active = true ORDER BY name`,
+          [req.user.company_id]
+        );
     return res.json(r.rows);
   } catch (err) {
     console.error(err);
