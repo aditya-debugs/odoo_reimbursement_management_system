@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
+import { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import {
   ResponsiveContainer,
   LineChart,
@@ -15,25 +15,54 @@ import {
   BarChart,
   Bar,
   Legend,
-} from 'recharts';
-import { analyticsApi, budgetsApi, categoriesApi, gstApi } from '../api';
-import { useAuth } from '../context/AuthContext';
-import Spinner from '../components/Spinner';
+} from "recharts";
+import { analyticsApi, budgetsApi, categoriesApi, gstApi } from "../api";
+import { useAuth } from "../context/AuthContext";
+import Spinner from "../components/Spinner";
 
-const COLORS = ['#6366f1', '#8b5cf6', '#a855f7', '#c084fc', '#818cf8', '#4f46e5'];
+const COLORS = [
+  "#2e5d77",
+  "#4b7a93",
+  "#6e9bb3",
+  "#91b7cb",
+  "#b8d2df",
+  "#d7e8ef",
+];
+
+const CHART_COLORS = {
+  axis: "var(--analytics-axis)",
+  grid: "var(--analytics-grid)",
+  line: "var(--analytics-line)",
+  bar: "var(--analytics-bar)",
+};
+
+const tooltipStyle = {
+  backgroundColor: "var(--analytics-tooltip-bg)",
+  border: "1px solid var(--analytics-tooltip-border)",
+  borderRadius: "10px",
+  color: "var(--color-text)",
+};
+
+const tooltipLabelStyle = {
+  color: "var(--color-text)",
+  fontWeight: 600,
+};
 
 export default function Analytics() {
   const { user, isAdmin, canAccessAnalytics } = useAuth();
-  const [from, setFrom] = useState('');
-  const [to, setTo] = useState('');
-  const [gstFrom, setGstFrom] = useState('');
-  const [gstTo, setGstTo] = useState('');
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const [gstFrom, setGstFrom] = useState("");
+  const [gstTo, setGstTo] = useState("");
   const [summary, setSummary] = useState(null);
   const [monthly, setMonthly] = useState([]);
   const [categories, setCategories] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [budgets, setBudgets] = useState([]);
-  const [budgetForm, setBudgetForm] = useState({ category_id: '', monthly_cap: '' });
+  const [budgetForm, setBudgetForm] = useState({
+    category_id: "",
+    monthly_cap: "",
+  });
   const [cats, setCats] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -51,11 +80,15 @@ export default function Analytics() {
     setMonthly(
       m.data.map((row) => ({
         ...row,
-        monthLabel: row.month ? String(row.month).slice(0, 7) : '',
-      }))
+        monthLabel: row.month ? String(row.month).slice(0, 7) : "",
+      })),
     );
     setCategories(c.data);
-    if (user?.role === 'admin' || user?.role === 'financer' || user?.role === 'director') {
+    if (
+      user?.role === "admin" ||
+      user?.role === "financer" ||
+      user?.role === "director"
+    ) {
       try {
         const e = await analyticsApi.employees(params);
         setEmployees(e.data);
@@ -67,7 +100,10 @@ export default function Analytics() {
     }
     if (isAdmin) {
       try {
-        const [b, catList] = await Promise.all([budgetsApi.list(), categoriesApi.list()]);
+        const [b, catList] = await Promise.all([
+          budgetsApi.list(),
+          categoriesApi.list(),
+        ]);
         setBudgets(b.data);
         setCats(catList.data);
       } catch {
@@ -98,7 +134,7 @@ export default function Analytics() {
   const saveBudget = async (e) => {
     e.preventDefault();
     if (!budgetForm.category_id || !budgetForm.monthly_cap) {
-      toast.error('Pick category and cap');
+      toast.error("Pick category and cap");
       return;
     }
     try {
@@ -106,32 +142,32 @@ export default function Analytics() {
         category_id: budgetForm.category_id,
         monthly_cap: parseFloat(budgetForm.monthly_cap),
       });
-      toast.success('Budget saved');
-      setBudgetForm({ category_id: '', monthly_cap: '' });
+      toast.success("Budget saved");
+      setBudgetForm({ category_id: "", monthly_cap: "" });
       const { data } = await budgetsApi.list();
       setBudgets(data);
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed');
+      toast.error(err.response?.data?.message || "Failed");
     }
   };
 
   const downloadGst = async () => {
     if (!gstFrom || !gstTo) {
-      toast.error('Pick GST report date range');
+      toast.error("Pick GST report date range");
       return;
     }
     try {
       const res = await gstApi.downloadReport(gstFrom, gstTo);
-      const blob = new Blob([res.data], { type: 'text/csv' });
+      const blob = new Blob([res.data], { type: "text/csv" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = 'gst-report.csv';
+      a.download = "gst-report.csv";
       a.click();
       URL.revokeObjectURL(url);
-      toast.success('Download started');
+      toast.success("Download started");
     } catch {
-      toast.error('GST export failed');
+      toast.error("GST export failed");
     }
   };
 
@@ -142,18 +178,30 @@ export default function Analytics() {
   if (loading) return <Spinner />;
 
   return (
-    <div>
+    <div className="analytics-page">
       <h1 className="page-title">Analytics</h1>
       <div className="form-row filters-row">
         <label>
           From
-          <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+          <input
+            type="date"
+            value={from}
+            onChange={(e) => setFrom(e.target.value)}
+          />
         </label>
         <label>
           To
-          <input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
+          <input
+            type="date"
+            value={to}
+            onChange={(e) => setTo(e.target.value)}
+          />
         </label>
-        <button type="button" className="btn btn-secondary" onClick={() => load()}>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={() => load()}
+        >
           Apply
         </button>
       </div>
@@ -173,7 +221,9 @@ export default function Analytics() {
         </div>
         <div className="stat-card">
           <div className="stat-label">Approval rate</div>
-          <div className="stat-value">{summary?.approval_rate_percent ?? 0}%</div>
+          <div className="stat-value">
+            {summary?.approval_rate_percent ?? 0}%
+          </div>
         </div>
       </div>
 
@@ -183,10 +233,14 @@ export default function Analytics() {
           <ul className="simple-list">
             {budgets.map((b) => (
               <li key={b.id}>
-                <strong>{b.category_name}</strong> cap {b.monthly_cap} · spent {Number(b.spent_mtd).toFixed(2)} ·{' '}
-                {b.utilization_percent}% used
+                <strong>{b.category_name}</strong> cap {b.monthly_cap} · spent{" "}
+                {Number(b.spent_mtd).toFixed(2)} · {b.utilization_percent}% used
                 <div className="budget-bar">
-                  <span style={{ width: `${Math.min(100, b.utilization_percent)}%` }} />
+                  <span
+                    style={{
+                      width: `${Math.min(100, b.utilization_percent)}%`,
+                    }}
+                  />
                 </div>
               </li>
             ))}
@@ -202,7 +256,9 @@ export default function Analytics() {
               Category
               <select
                 value={budgetForm.category_id}
-                onChange={(e) => setBudgetForm((f) => ({ ...f, category_id: e.target.value }))}
+                onChange={(e) =>
+                  setBudgetForm((f) => ({ ...f, category_id: e.target.value }))
+                }
               >
                 <option value="">—</option>
                 {cats.map((c) => (
@@ -219,84 +275,162 @@ export default function Analytics() {
                 step="0.01"
                 min="0"
                 value={budgetForm.monthly_cap}
-                onChange={(e) => setBudgetForm((f) => ({ ...f, monthly_cap: e.target.value }))}
+                onChange={(e) =>
+                  setBudgetForm((f) => ({ ...f, monthly_cap: e.target.value }))
+                }
               />
             </label>
-            <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-end' }}>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              style={{ alignSelf: "flex-end" }}
+            >
               Save
             </button>
           </form>
         </section>
       ) : null}
 
-      {(user?.role === 'admin' || user?.role === 'financer' || user?.role === 'director') && (
+      {(user?.role === "admin" ||
+        user?.role === "financer" ||
+        user?.role === "director") && (
         <section className="section-block">
           <h2>GST report (CSV)</h2>
           <div className="form-row">
             <label>
               From
-              <input type="date" value={gstFrom} onChange={(e) => setGstFrom(e.target.value)} />
+              <input
+                type="date"
+                value={gstFrom}
+                onChange={(e) => setGstFrom(e.target.value)}
+              />
             </label>
             <label>
               To
-              <input type="date" value={gstTo} onChange={(e) => setGstTo(e.target.value)} />
+              <input
+                type="date"
+                value={gstTo}
+                onChange={(e) => setGstTo(e.target.value)}
+              />
             </label>
-            <button type="button" className="btn btn-secondary" onClick={downloadGst}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={downloadGst}
+            >
               Download CSV
             </button>
           </div>
-          <p className="muted">Includes approved expenses with GST breakdown. Mark categories as GST in DB or future admin UI.</p>
+          <p className="muted">
+            Includes approved expenses with GST breakdown. Mark categories as
+            GST in DB or future admin UI.
+          </p>
         </section>
       )}
 
-      <section className="chart-section">
-        <h2>Monthly trend (approved)</h2>
-        <div className="chart-box">
-          <ResponsiveContainer width="100%" height={320}>
-            <LineChart data={monthly}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="monthLabel" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip />
-              <Line type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={2} dot />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </section>
-
-      <section className="chart-section">
-        <h2>By category</h2>
-        <div className="chart-box">
-          <ResponsiveContainer width="100%" height={320}>
-            <PieChart>
-              <Pie dataKey="value" data={categories} nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
-                {categories.map((_, i) => (
-                  <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </section>
-
-      {user?.role === 'admin' || user?.role === 'financer' || user?.role === 'director' ? (
-        <section className="chart-section">
-          <h2>Spending by employee</h2>
-          <div className="chart-box">
+      <div className="analytics-chart-grid">
+        <section className="chart-section analytics-chart-section">
+          <h2 className="analytics-chart-title">Monthly trend (approved)</h2>
+          <div className="chart-box analytics-chart-box">
             <ResponsiveContainer width="100%" height={320}>
-              <BarChart data={employees}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="employee_name" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Bar dataKey="total" fill="#6366f1" radius={[4, 4, 0, 0]} />
-              </BarChart>
+              <LineChart data={monthly}>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke={CHART_COLORS.grid}
+                />
+                <XAxis
+                  dataKey="monthLabel"
+                  tick={{ fontSize: 12, fill: CHART_COLORS.axis }}
+                  axisLine={{ stroke: CHART_COLORS.grid }}
+                />
+                <YAxis
+                  tick={{ fontSize: 12, fill: CHART_COLORS.axis }}
+                  axisLine={{ stroke: CHART_COLORS.grid }}
+                />
+                <Tooltip
+                  contentStyle={tooltipStyle}
+                  labelStyle={tooltipLabelStyle}
+                  cursor={{ stroke: CHART_COLORS.grid }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="total"
+                  stroke={CHART_COLORS.line}
+                  strokeWidth={3}
+                  dot={{ r: 3, fill: CHART_COLORS.line }}
+                  activeDot={{ r: 5 }}
+                />
+              </LineChart>
             </ResponsiveContainer>
           </div>
         </section>
-      ) : null}
+
+        <section className="chart-section analytics-chart-section">
+          <h2 className="analytics-chart-title">By category</h2>
+          <div className="chart-box analytics-chart-box">
+            <ResponsiveContainer width="100%" height={320}>
+              <PieChart>
+                <Pie
+                  dataKey="value"
+                  data={categories}
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={104}
+                  labelLine={false}
+                  label
+                >
+                  {categories.map((_, i) => (
+                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={tooltipStyle}
+                  labelStyle={tooltipLabelStyle}
+                />
+                <Legend wrapperStyle={{ color: "var(--color-text)" }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+
+        {user?.role === "admin" ||
+        user?.role === "financer" ||
+        user?.role === "director" ? (
+          <section className="chart-section analytics-chart-section analytics-chart-section-wide">
+            <h2 className="analytics-chart-title">Spending by employee</h2>
+            <div className="chart-box analytics-chart-box">
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart data={employees}>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke={CHART_COLORS.grid}
+                  />
+                  <XAxis
+                    dataKey="employee_name"
+                    tick={{ fontSize: 11, fill: CHART_COLORS.axis }}
+                    axisLine={{ stroke: CHART_COLORS.grid }}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 12, fill: CHART_COLORS.axis }}
+                    axisLine={{ stroke: CHART_COLORS.grid }}
+                  />
+                  <Tooltip
+                    contentStyle={tooltipStyle}
+                    labelStyle={tooltipLabelStyle}
+                    cursor={{ fill: "rgba(126, 164, 183, 0.12)" }}
+                  />
+                  <Bar
+                    dataKey="total"
+                    fill={CHART_COLORS.bar}
+                    radius={[6, 6, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </section>
+        ) : null}
+      </div>
     </div>
   );
 }

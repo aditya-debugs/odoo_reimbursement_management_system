@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import NotificationBell from "./NotificationBell";
@@ -14,6 +15,23 @@ export default function Layout() {
     isAdmin,
   } = useAuth();
   const navigate = useNavigate();
+  const [theme, setTheme] = useState(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "light" || savedTheme === "dark") return savedTheme;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
+
   const initials = (user?.name || "U")
     .split(" ")
     .map((part) => part[0])
@@ -85,9 +103,12 @@ export default function Layout() {
             <button
               type="button"
               className="btn btn-ghost topbar-pill"
-              title="Theme"
+              title="Switch theme"
+              onClick={toggleTheme}
+              aria-label="Toggle light and dark theme"
+              aria-pressed={theme === "dark"}
             >
-              Theme
+              Theme: {theme === "dark" ? "Dark" : "Light"}
             </button>
             <NotificationBell />
             <button
