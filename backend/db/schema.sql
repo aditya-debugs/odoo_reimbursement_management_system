@@ -66,6 +66,7 @@ CREATE TABLE IF NOT EXISTS expenses (
   receipt_url TEXT,
   receipt_filename TEXT,
   status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'cancelled')),
+  fraud_flags JSONB NOT NULL DEFAULT '[]'::jsonb,
   current_approver_sequence INT DEFAULT 1,
   submitted_at TIMESTAMPTZ DEFAULT NOW(),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -157,3 +158,6 @@ CREATE OR REPLACE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EAC
 CREATE OR REPLACE TRIGGER update_expenses_updated_at BEFORE UPDATE ON expenses FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE OR REPLACE TRIGGER update_approval_rules_updated_at BEFORE UPDATE ON approval_rules FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE OR REPLACE TRIGGER update_expense_approvals_updated_at BEFORE UPDATE ON expense_approvals FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Migration (existing databases created before fraud_flags column):
+-- ALTER TABLE expenses ADD COLUMN IF NOT EXISTS fraud_flags JSONB NOT NULL DEFAULT '[]'::jsonb;
