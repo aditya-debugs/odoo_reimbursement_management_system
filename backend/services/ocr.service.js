@@ -1,9 +1,17 @@
 const Tesseract = require('tesseract.js');
 const path = require('path');
 
-const extractFields = (text) => {
+const extractFields = (text, categories = []) => {
   const raw = text.replace(/\r/g, '\n');
-  const result = { amount: null, date: null, vendor: null, rawText: raw.trim().slice(0, 2000) };
+  const result = {
+    amount: null,
+    date: null,
+    vendor: null,
+    rawText: raw.trim().slice(0, 2000),
+    suggested_category_id: null,
+    suggested_category_name: null,
+    line_items: [],
+  };
 
   const amountMatch =
     raw.match(/(?:total|amount|due|balance)\s*[:\s]*[\$€£₹]?\s*([\d,]+\.?\d*)/i) ||
@@ -36,15 +44,53 @@ const extractFields = (text) => {
     if (vendorLine) result.vendor = vendorLine;
   }
 
+  const low = raw.toLowerCase();
+  const hints = [
+    { keys: ['restaurant', 'meal', 'food', 'cafe', 'lunch', 'dinner', 'pizza'], name: 'Meals' },
+    { keys: ['flight', 'hotel', 'uber', 'taxi', 'train', 'travel', 'airline'], name: 'Travel' },
+    { keys: ['office', 'supply', 'staples', 'amazon', 'equipment'], name: 'Office supplies' },
+  ];
+  for (const h of hints) {
+    if (h.keys.some((k) => low.includes(k))) {
+      const cat = categories.find(
+        (c) => c.name.toLowerCase().includes(h.name.toLowerCase()) || h.name.toLowerCase().includes(c.name.toLowerCase())
+      );
+      if (cat) {
+        result.suggested_category_id = cat.id;
+        result.suggested_category_name = cat.name;
+        break;
+      }
+    }
+  }
+
+  if (!result.suggested_category_id && categories.length) {
+    for (const c of categories) {
+      const n = c.name.toLowerCase();
+      if (n.length >= 3 && low.includes(n.slice(0, Math.min(6, n.length)))) {
+        result.suggested_category_id = c.id;
+        result.suggested_category_name = c.name;
+        break;
+      }
+    }
+  }
+
+  const lineAmount = /^\s*(.+?)\s+[\$€£₹]?\s*([\d,]+\.\d{2})\s*$/;
+  for (const line of lines.slice(0, 15)) {
+    const m = line.match(lineAmount);
+    if (m && !/total|subtotal|tax/i.test(line)) {
+      result.line_items.push({ description: m[1].trim(), amount: parseFloat(m[2].replace(/,/g, '')) });
+    }
+  }
+
   return result;
 };
 
-const runOcrOnFile = async (filePath) => {
+const runOcrOnFile = async (filePath, categories = []) => {
   const abs = path.resolve(filePath);
   const {
     data: { text },
   } = await Tesseract.recognize(abs, 'eng', { logger: () => {} });
-  return extractFields(text);
+  return extractFields(text, categories);
 };
 
 module.exports = { runOcrOnFile, extractFields };
