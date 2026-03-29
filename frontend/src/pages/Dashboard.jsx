@@ -161,6 +161,13 @@ export default function Dashboard() {
             </Link>
           </div>
           <div className="stat-card">
+            <div className="stat-label">Analytics peaks</div>
+            <div style={{ margin: '0.4rem 0' }}>Understand your spending patterns.</div>
+            <Link to="/analytics/personal" className="btn btn-secondary btn-sm">
+              Explore my insights
+            </Link>
+          </div>
+          <div className="stat-card">
             <div className="stat-label">Quick actions</div>
             <Link to="/submit" className="btn btn-primary">
               Submit expense

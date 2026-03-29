@@ -16,6 +16,10 @@ import AdminRules from './pages/AdminRules';
 import AllExpenses from './pages/AllExpenses';
 import Analytics from './pages/Analytics';
 import AdminAudit from './pages/AdminAudit';
+import ExpenseTracking from './pages/ExpenseTracking';
+import Groups from './pages/Groups';
+import GroupDashboard from './pages/GroupDashboard';
+import EmployeeDashboard from './pages/EmployeeDashboard';
 
 function PublicOnly({ children }) {
   const { user, loading } = useAuth();
@@ -52,6 +56,10 @@ export default function App() {
               <Route path="/submit" element={<SubmitExpense />} />
               <Route path="/my-expenses" element={<MyExpenses />} />
               <Route path="/expenses/:id" element={<ExpenseDetail />} />
+              <Route path="/expenses/:id/tracking" element={<ExpenseTracking />} />
+              <Route path="/groups" element={<Groups />} />
+              <Route path="/groups/:id" element={<GroupDashboard />} />
+              <Route path="/analytics/personal" element={<EmployeeDashboard />} />
               <Route path="/approvals" element={<ApprovalQueue />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/admin/users" element={<AdminUsers />} />

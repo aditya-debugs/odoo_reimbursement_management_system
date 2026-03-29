@@ -139,7 +139,12 @@ export default function MyExpenses() {
                   />
                 </td>
                 <td>
-                  <Link to={`/expenses/${e.id}`}>View</Link>
+                  <div className="table-actions">
+                    <Link to={`/expenses/${e.id}`}>View</Link>
+                    {e.status === 'pending' && (
+                      <Link to={`/expenses/${e.id}/tracking`} style={{ color: '#6366f1', fontWeight: 600 }}>🔍 Track</Link>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

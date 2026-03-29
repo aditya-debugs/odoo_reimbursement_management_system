@@ -300,17 +300,21 @@ router.get('/:id', auth, [param('id').isUUID()], async (req, res) => {
     const snapRes = await query(`SELECT * FROM expense_workflow_snapshots WHERE expense_id = $1`, [req.params.id]);
     const workflow_snapshot = snapRes.rows[0] || null;
 
-    let approval_prediction = null;
-    if (req.user.role === 'employee' && exp.employee_id === req.user.id) {
-      approval_prediction = await computeApprovalPrediction({
-        companyId: req.user.company_id,
-        employeeId: req.user.id,
-        categoryId: exp.category_id,
-        amountInCompanyCurrency: exp.amount_in_company_currency,
-      });
-    }
+    const splitsRes = await query(
+      `SELECT es.*, u.name as user_name, u.email as user_email
+       FROM expense_splits es
+       JOIN users u ON u.id = es.user_id
+       WHERE es.expense_id = $1`,
+      [req.params.id]
+    );
 
-    return res.json({ ...exp, approvals: approvals.rows, workflow_snapshot, approval_prediction });
+    return res.json({
+      ...exp,
+      approvals: approvals.rows,
+      workflow_snapshot,
+      approval_prediction,
+      splits: splitsRes.rows
+    });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: 'Failed to load expense' });

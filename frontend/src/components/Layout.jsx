@@ -61,8 +61,20 @@ export default function Layout() {
               <NavLink to="/my-expenses" className={linkClass}>
                 My expenses
               </NavLink>
+              <NavLink to="/groups" className={linkClass}>
+                Groups (Splitwise)
+              </NavLink>
+              <NavLink to="/analytics/personal" className={linkClass}>
+                Personal Analytics
+              </NavLink>
             </>
-          ) : null}
+          ) : (
+            <>
+              <NavLink to="/groups" className={linkClass}>
+                Groups (Splitwise)
+              </NavLink>
+            </>
+          )}
           {canAccessApprovals ? (
             <>
               <NavLink to="/approvals" className={linkClass}>

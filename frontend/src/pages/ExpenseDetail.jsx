@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import Spinner from '../components/Spinner';
 import StatusBadge from '../components/StatusBadge';
 import FraudBadge from '../components/FraudBadge';
+import TrackingTimeline from '../components/TrackingTimeline';
 
 function parseFraudFlags(f) {
   if (!f) return [];
@@ -189,27 +190,26 @@ export default function ExpenseDetail() {
         </section>
       ) : null}
 
+      {data.splits && data.splits.length > 0 && (
+        <section className="section-block">
+          <h2>Shared splitting breakdown</h2>
+          <ul className="simple-list">
+            {data.splits.map((s) => (
+              <li key={s.id} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>{s.user_name} <span className="muted">({s.user_email})</span></span>
+                <span style={{ fontWeight: 600 }}>{Number(s.amount).toFixed(2)} {data.currency_code}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <section className="section-block">
-        <h2>Approval timeline</h2>
-        <ul className="timeline">
-          {(data.approvals || []).map((a) => (
-            <li key={a.id} className="timeline-item">
-              <div className="timeline-dot" />
-              <div>
-                <strong>{a.approver_name}</strong>
-                <span className="muted"> · Step {a.sequence_order}</span>
-                <div>
-                  <StatusBadge status={a.status} />
-                </div>
-                {a.comments ? <p className="muted">{a.comments}</p> : null}
-                {a.action_at ? <time className="muted">{new Date(a.action_at).toLocaleString()}</time> : null}
-              </div>
-            </li>
-          ))}
-        </ul>
-        {(!data.approvals || data.approvals.length === 0) && data.status === 'approved' ? (
-          <p className="muted">Auto-approved or no approval records.</p>
-        ) : null}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <h2 style={{ margin: 0 }}>Approval Journey</h2>
+          <Link to={`/expenses/${id}/tracking`} className="btn btn-secondary btn-sm">🔍 Full Tracking View</Link>
+        </div>
+        <TrackingTimeline expenseId={id} />
       </section>
     </div>
   );

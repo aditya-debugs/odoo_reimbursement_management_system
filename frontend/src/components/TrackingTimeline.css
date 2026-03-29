@@ -1,0 +1,606 @@
+/* ══════════════════════════════════════════════════════════════
+   TrackingTimeline – Transparency & Tracking System Styles
+   Uses the app's existing CSS variables for consistency.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ─── Root wrapper ─────────────────────────────────────────── */
+.tt-root {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ─── Header ───────────────────────────────────────────────── */
+.tt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.tt-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.tt-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.tt-refresh-time {
+  font-size: 0.72rem;
+  color: var(--color-muted);
+}
+
+.tt-refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.38rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.tt-refresh-btn:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: var(--color-text);
+}
+
+.tt-spinning {
+  display: inline-block;
+  animation: tt-spin 0.7s linear infinite;
+}
+
+@keyframes tt-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Loading / Error ──────────────────────────────────────── */
+.tt-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.tt-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: tt-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.tt-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius);
+  font-size: 0.88rem;
+  color: #b91c1c;
+}
+
+/* ─── Banners ──────────────────────────────────────────────── */
+.tt-delay-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: var(--radius);
+  font-size: 0.84rem;
+  color: #92400e;
+  font-weight: 500;
+}
+
+.tt-outcome-banner {
+  padding: 0.85rem 1.1rem;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.tt-outcome--approved {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #166534;
+}
+
+.tt-outcome--rejected {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+}
+
+.tt-outcome--cancelled {
+  background: #f8fafc;
+  border: 1px solid var(--color-border);
+  color: var(--color-muted);
+}
+
+/* ─── ETA Card ─────────────────────────────────────────────── */
+.tt-eta-card {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  color: #fff;
+}
+
+.tt-eta-top {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.tt-eta-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.tt-eta-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  opacity: 0.85;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tt-eta-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-top: 0.15rem;
+}
+
+.tt-eta-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.tt-current-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  background: rgba(255,255,255,0.18);
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+}
+
+.tt-avg-label {
+  font-size: 0.76rem;
+  opacity: 0.8;
+}
+
+/* ─── Progress Bar ─────────────────────────────────────────── */
+.tt-progress-wrap {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+}
+
+.tt-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+
+.tt-progress-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.tt-progress-pct {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-accent);
+}
+
+.tt-progress-track {
+  height: 10px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.tt-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  border-radius: 999px;
+  transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ─── Timeline ─────────────────────────────────────────────── */
+.tt-timeline {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.tt-step {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 0 0.85rem;
+  align-items: start;
+  transition: background 0.2s;
+  border-radius: 8px;
+  padding: 0.2rem 0.25rem;
+}
+
+.tt-step--active {
+  background: #fafbff;
+}
+
+/* ─── Dot ──────────────────────────────────────────────────── */
+.tt-step-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.tt-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  z-index: 1;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.tt-dot--completed {
+  background: #dcfce7;
+  color: #16a34a;
+  border: 2px solid #86efac;
+}
+
+.tt-dot--rejected {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 2px solid #fca5a5;
+}
+
+.tt-dot--pending {
+  background: #fffbeb;
+  color: #d97706;
+  border: 2px dashed #fbbf24;
+}
+
+.tt-dot--skipped {
+  background: #f1f5f9;
+  color: #94a3b8;
+  border: 2px solid #e2e8f0;
+}
+
+.tt-dot--cancelled {
+  background: #f1f5f9;
+  color: #94a3b8;
+  border: 2px solid #e2e8f0;
+}
+
+.tt-dot--pulse::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid #fbbf24;
+  animation: tt-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes tt-pulse {
+  0%, 100% { opacity: 0; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+/* ─── Connector line ───────────────────────────────────────── */
+.tt-connector {
+  width: 2px;
+  flex: 1;
+  min-height: 28px;
+  margin: 2px 0;
+  border-radius: 1px;
+  background: var(--color-border);
+}
+
+.tt-connector--done {
+  background: linear-gradient(180deg, #86efac 0%, #86efac 100%);
+}
+
+.tt-connector--idle {
+  background: var(--color-border);
+}
+
+/* ─── Step content ─────────────────────────────────────────── */
+.tt-step-content {
+  padding: 0.45rem 0 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.tt-step-top {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.tt-step-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* ─── Chips ────────────────────────────────────────────────── */
+.tt-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.18rem 0.5rem;
+  border-radius: 20px;
+}
+
+.chip-green  { background: #dcfce7; color: #16a34a; }
+.chip-red    { background: #fee2e2; color: #dc2626; }
+.chip-amber  { background: #fef9c3; color: #b45309; }
+.chip-gray   { background: #f1f5f9; color: #64748b; }
+.chip-blue   { background: #e0e7ff; color: #4338ca; }
+
+.chip-sm { font-size: 0.62rem; padding: 0.1rem 0.4rem; }
+
+/* ─── Delay badge ──────────────────────────────────────────── */
+.tt-delay-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+  padding: 0.18rem 0.5rem;
+  border-radius: 20px;
+}
+
+/* ─── Approver avatar ──────────────────────────────────────── */
+.tt-step-approver {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tt-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tt-approver-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.tt-approver-role {
+  font-size: 0.72rem;
+  color: var(--color-muted);
+  text-transform: capitalize;
+}
+
+/* ─── Comment ──────────────────────────────────────────────── */
+.tt-step-comment {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  font-style: italic;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.3rem;
+  background: #f8fafc;
+  padding: 0.45rem 0.65rem;
+  border-radius: 6px;
+  border-left: 3px solid var(--color-border);
+}
+
+.tt-comment-icon {
+  font-style: normal;
+  flex-shrink: 0;
+}
+
+/* ─── Timestamps ───────────────────────────────────────────── */
+.tt-step-time {
+  font-size: 0.72rem;
+  color: var(--color-muted);
+}
+
+.tt-step-eta-hint {
+  font-size: 0.72rem;
+  color: #4338ca;
+  font-weight: 500;
+  background: #e0e7ff;
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+/* ─── Resubmit ─────────────────────────────────────────────── */
+.tt-resubmit {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.tt-resubmit-hint {
+  font-size: 0.85rem;
+  color: #991b1b;
+  margin: 0;
+}
+
+/* ─── History / Audit Log ──────────────────────────────────── */
+.tt-history {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.tt-history-toggle {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.1rem;
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: var(--font);
+}
+
+.tt-history-toggle:hover {
+  background: #f8fafc;
+}
+
+.tt-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--color-border);
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.tt-history-item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem 1.1rem;
+  border-bottom: 1px solid var(--color-border);
+  align-items: flex-start;
+  transition: background 0.12s;
+}
+
+.tt-history-item:last-child {
+  border-bottom: none;
+}
+
+.tt-history-item:hover {
+  background: #f8fafc;
+}
+
+.tt-history--approved .tt-history-dot { background: #16a34a; }
+.tt-history--rejected .tt-history-dot { background: #dc2626; }
+
+.tt-history-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-muted);
+  margin-top: 0.35rem;
+  flex-shrink: 0;
+}
+
+.tt-history-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+}
+
+.tt-history-actor {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.tt-history-role {
+  font-size: 0.72rem;
+  color: var(--color-muted);
+}
+
+.tt-history-stage {
+  font-size: 0.78rem;
+  color: var(--color-muted);
+}
+
+.tt-history-comment {
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--color-muted);
+}
+
+.tt-history-time {
+  font-size: 0.7rem;
+  color: var(--color-muted);
+}
+
+/* ─── Responsive ───────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .tt-eta-meta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .tt-step {
+    grid-template-columns: 28px 1fr;
+    gap: 0 0.65rem;
+  }
+  .tt-dot {
+    width: 26px;
+    height: 26px;
+  }
+}
