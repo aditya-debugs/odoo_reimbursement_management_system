@@ -422,6 +422,27 @@ select:focus {
   color: #c2410c;
 }
 
+.fraud-summary-inline {
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.budget-bar {
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 0.35rem;
+}
+
+.budget-bar > span {
+  display: block;
+  height: 100%;
+  background: #6366f1;
+  border-radius: 4px;
+}
+
 /* Stats & sections */
 .grid-stats {
   display: grid;

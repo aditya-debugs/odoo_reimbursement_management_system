@@ -5,7 +5,7 @@ import NotificationBell from './NotificationBell';
 const linkClass = ({ isActive }) => (isActive ? 'nav-link active' : 'nav-link');
 
 export default function Layout() {
-  const { user, company, logout } = useAuth();
+  const { user, company, logout, canAccessApprovals, canAccessAnalytics, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -32,17 +32,19 @@ export default function Layout() {
               </NavLink>
             </>
           ) : null}
-          {user?.role === 'manager' || user?.role === 'admin' ? (
+          {canAccessApprovals ? (
             <>
               <NavLink to="/approvals" className={linkClass}>
                 Approval queue
               </NavLink>
-              <NavLink to="/analytics" className={linkClass}>
-                Analytics
-              </NavLink>
             </>
           ) : null}
-          {user?.role === 'admin' ? (
+          {canAccessAnalytics ? (
+            <NavLink to="/analytics" className={linkClass}>
+              Analytics
+            </NavLink>
+          ) : null}
+          {isAdmin ? (
             <>
               <NavLink to="/admin/users" className={linkClass}>
                 Users
@@ -52,6 +54,9 @@ export default function Layout() {
               </NavLink>
               <NavLink to="/admin/expenses" className={linkClass}>
                 All expenses
+              </NavLink>
+              <NavLink to="/admin/audit" className={linkClass}>
+                Audit chain
               </NavLink>
             </>
           ) : null}

@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { authApi } from '../api';
 import { useAuth } from '../context/AuthContext';
 
 export default function Signup() {
   const { signup } = useAuth();
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
+  const [countries, setCountries] = useState([]);
   const [form, setForm] = useState({
     company_name: '',
     country: 'India',
@@ -14,6 +16,17 @@ export default function Signup() {
     email: '',
     password: '',
   });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await authApi.countries();
+        setCountries(data);
+      } catch {
+        /* optional */
+      }
+    })();
+  }, []);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -45,11 +58,22 @@ export default function Signup() {
           </label>
           <label>
             Country
-            <input
-              value={form.country}
-              onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))}
-              required
-            />
+            {countries.length ? (
+              <select value={form.country} onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))}>
+                {countries.map((c) => (
+                  <option key={c.code || c.name} value={c.name}>
+                    {c.name}
+                    {c.currency_code ? ` (${c.currency_code})` : ''}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                value={form.country}
+                onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))}
+                required
+              />
+            )}
           </label>
           <label>
             Your name

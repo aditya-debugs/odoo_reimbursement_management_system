@@ -12,6 +12,7 @@ export default function SubmitExpense() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [ocrBusy, setOcrBusy] = useState(false);
+  const [ocrPayload, setOcrPayload] = useState(null);
   const [form, setForm] = useState({
     title: '',
     description: '',
@@ -51,11 +52,13 @@ export default function SubmitExpense() {
       const fd = new FormData();
       fd.append('receipt', file);
       const { data } = await expensesApi.ocr(fd);
+      setOcrPayload(data);
       setForm((f) => ({
         ...f,
         amount: data.amount != null ? String(data.amount) : f.amount,
         expense_date: data.date || f.expense_date,
         title: data.vendor && !f.title ? data.vendor : f.title,
+        category_id: data.suggested_category_id || f.category_id,
       }));
       toast.success('OCR suggestions applied — review before submit');
     } catch {
@@ -77,6 +80,7 @@ export default function SubmitExpense() {
       fd.append('expense_date', form.expense_date);
       if (form.category_id) fd.append('category_id', form.category_id);
       if (file) fd.append('receipt', file);
+      if (ocrPayload) fd.append('ocr_payload', JSON.stringify(ocrPayload));
       const { data } = await expensesApi.submit(fd);
       toast.success('Expense submitted');
       navigate(`/expenses/${data.id}`);
@@ -134,6 +138,7 @@ export default function SubmitExpense() {
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
+                {c.gst_applicable ? ' (GST)' : ''}
               </option>
             ))}
           </select>

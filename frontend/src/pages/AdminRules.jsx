@@ -11,6 +11,7 @@ const emptyRule = {
   rule_type: 'sequential',
   percentage_threshold: '60',
   specific_approver_id: '',
+  sequential_conditional_override: false,
   stepApproverIds: [''],
 };
 
@@ -50,18 +51,20 @@ export default function AdminRules() {
       toast.error('Add at least one approver step');
       return;
     }
+    const seqCond = form.rule_type === 'sequential' && form.sequential_conditional_override;
     setBusy(true);
     try {
       await rulesApi.create({
         name: form.name,
         description: form.description,
         rule_type: form.rule_type,
+        sequential_conditional_override: seqCond,
         percentage_threshold:
-          form.rule_type === 'percentage' || form.rule_type === 'hybrid'
+          form.rule_type === 'percentage' || form.rule_type === 'hybrid' || seqCond
             ? parseFloat(form.percentage_threshold) || 60
             : null,
         specific_approver_id:
-          form.rule_type === 'specific_approver' || form.rule_type === 'hybrid'
+          form.rule_type === 'specific_approver' || form.rule_type === 'hybrid' || seqCond
             ? form.specific_approver_id || null
             : null,
         steps,
@@ -81,7 +84,7 @@ export default function AdminRules() {
   return (
     <div>
       <h1 className="page-title">Approval rules</h1>
-      <p className="muted">First active rule applies to new expenses. Deactivate others in the API or add toggle later.</p>
+      <p className="muted">First active rule applies to new expenses. Snapshot freezes plan per expense.</p>
 
       <section className="section-block">
         <h2>Existing rules</h2>
@@ -89,6 +92,7 @@ export default function AdminRules() {
           {rules.map((r) => (
             <li key={r.id}>
               <strong>{r.name}</strong> · {r.rule_type} · {r.is_active ? 'active' : 'inactive'}
+              {r.sequential_conditional_override ? ' · seq. conditional override' : ''}
               <ul>
                 {(r.steps || []).map((s) => (
                   <li key={s.id} className="muted">
@@ -122,7 +126,17 @@ export default function AdminRules() {
               <option value="hybrid">Hybrid (% or specific)</option>
             </select>
           </label>
-          {(form.rule_type === 'percentage' || form.rule_type === 'hybrid') && (
+          {form.rule_type === 'sequential' ? (
+            <label className="checkbox-row">
+              <input
+                type="checkbox"
+                checked={form.sequential_conditional_override}
+                onChange={(e) => setForm((f) => ({ ...f, sequential_conditional_override: e.target.checked }))}
+              />
+              Conditional override (e.g. 60% approvals or CFO approves ends flow early)
+            </label>
+          ) : null}
+          {(form.rule_type === 'percentage' || form.rule_type === 'hybrid' || form.sequential_conditional_override) && (
             <label>
               Approve when ≥ this % of approvers agree
               <input
@@ -134,14 +148,20 @@ export default function AdminRules() {
               />
             </label>
           )}
-          {(form.rule_type === 'specific_approver' || form.rule_type === 'hybrid') && (
+          {(form.rule_type === 'specific_approver' || form.rule_type === 'hybrid' || form.sequential_conditional_override) && (
             <label>
               Specific approver (user id)
-              <input
+              <select
                 value={form.specific_approver_id}
                 onChange={(e) => setForm((f) => ({ ...f, specific_approver_id: e.target.value }))}
-                placeholder="UUID"
-              />
+              >
+                <option value="">—</option>
+                {users.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name}
+                  </option>
+                ))}
+              </select>
             </label>
           )}
           <div>
@@ -150,11 +170,14 @@ export default function AdminRules() {
               <div key={idx} className="form-row">
                 <label className="flex-1">
                   Approver {idx + 1}
-                  <select value={id} onChange={(e) => {
-                    const next = [...form.stepApproverIds];
-                    next[idx] = e.target.value;
-                    setForm((f) => ({ ...f, stepApproverIds: next }));
-                  }}>
+                  <select
+                    value={id}
+                    onChange={(e) => {
+                      const next = [...form.stepApproverIds];
+                      next[idx] = e.target.value;
+                      setForm((f) => ({ ...f, stepApproverIds: next }));
+                    }}
+                  >
                     <option value="">— select —</option>
                     {users.map((u) => (
                       <option key={u.id} value={u.id}>

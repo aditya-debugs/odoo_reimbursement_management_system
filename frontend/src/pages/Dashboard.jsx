@@ -5,7 +5,7 @@ import { analyticsApi, approvalsApi, expensesApi } from '../api';
 import Spinner from '../components/Spinner';
 
 export default function Dashboard() {
-  const { user, company } = useAuth();
+  const { user, company, canAccessApprovals } = useAuth();
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState(null);
   const [pendingCount, setPendingCount] = useState(0);
@@ -23,7 +23,7 @@ export default function Dashboard() {
         } else {
           const { data: s } = await analyticsApi.summary({});
           if (!cancelled) setSummary(s);
-          if (user?.role === 'manager' || user?.role === 'admin') {
+          if (canAccessApprovals) {
             const { data: ap } = await approvalsApi.pending();
             if (!cancelled) setPendingCount(ap.length);
           }

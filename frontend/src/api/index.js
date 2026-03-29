@@ -4,6 +4,7 @@ export const authApi = {
   signup: (body) => api.post('/auth/signup', body),
   login: (body) => api.post('/auth/login', body),
   me: () => api.get('/auth/me'),
+  countries: () => api.get('/auth/countries'),
 };
 
 export const usersApi = {
@@ -56,4 +57,20 @@ export const analyticsApi = {
 export const notificationsApi = {
   list: () => api.get('/notifications'),
   readAll: () => api.patch('/notifications/read-all'),
+};
+
+export const auditApi = {
+  chain: () => api.get('/audit/chain'),
+  verify: () => api.post('/audit/verify'),
+};
+
+export const budgetsApi = {
+  list: () => api.get('/budgets'),
+  set: (body) => api.post('/budgets', body),
+  remove: (id) => api.delete(`/budgets/${id}`),
+};
+
+export const gstApi = {
+  downloadReport: (from, to) =>
+    api.get('/gst/report', { params: { from, to }, responseType: 'blob' }),
 };

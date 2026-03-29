@@ -62,6 +62,35 @@ export default function AdminUsers() {
           Add user
         </button>
       </div>
+      <div className="section-block muted" style={{ fontSize: '0.9rem', lineHeight: 1.5 }}>
+        <p>
+          <strong>Roles are separate.</strong> Admin is <em>not</em> the same as Manager — each user has exactly one role.
+        </p>
+        <ul className="simple-list" style={{ marginTop: '0.5rem' }}>
+          <li>
+            <strong>Admin</strong> — Created on company signup. Users, approval rules, all expenses, audit, budgets. Can force
+            approve/reject any step.
+          </li>
+          <li>
+            <strong>Manager</strong> — Sees <em>direct reports’</em> expenses and own approval queue. Typical line manager (not
+            IT admin).
+          </li>
+          <li>
+            <strong>Employee</strong> — Submits expenses; sees only their own claims.
+          </li>
+          <li>
+            <strong>Financer</strong> — Finance approver: company-wide expense visibility; acts when assigned in a rule chain.
+          </li>
+          <li>
+            <strong>Director</strong> — Senior approver: same visibility pattern as financer in this app; use in multi-step
+            flows (e.g. final sign-off).
+          </li>
+        </ul>
+        <p style={{ marginTop: '0.5rem' }}>
+          <strong>Approver</strong> column = “Can approve as manager”: if checked and this user is an employee’s{' '}
+          <strong>Manager</strong>, that employee’s expenses can require this person first (step 0) before other rule steps.
+        </p>
+      </div>
       <div className="table-wrap">
         <table className="data-table">
           <thead>
@@ -70,7 +99,7 @@ export default function AdminUsers() {
               <th>Email</th>
               <th>Role</th>
               <th>Manager</th>
-              <th>Approver</th>
+              <th title="If manager for an employee, can be first approver (step 0)">Mgr approver</th>
               <th>Active</th>
             </tr>
           </thead>
@@ -133,6 +162,8 @@ export default function AdminUsers() {
             <select value={form.role} onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}>
               <option value="employee">Employee</option>
               <option value="manager">Manager</option>
+              <option value="financer">Financer</option>
+              <option value="director">Director</option>
               <option value="admin">Admin</option>
             </select>
           </label>

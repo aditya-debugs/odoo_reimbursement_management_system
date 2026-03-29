@@ -15,6 +15,7 @@ import AdminUsers from './pages/AdminUsers';
 import AdminRules from './pages/AdminRules';
 import AllExpenses from './pages/AllExpenses';
 import Analytics from './pages/Analytics';
+import AdminAudit from './pages/AdminAudit';
 
 function PublicOnly({ children }) {
   const { user, loading } = useAuth();
@@ -56,6 +57,7 @@ export default function App() {
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/rules" element={<AdminRules />} />
               <Route path="/admin/expenses" element={<AllExpenses />} />
+              <Route path="/admin/audit" element={<AdminAudit />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

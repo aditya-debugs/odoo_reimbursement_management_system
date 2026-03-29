@@ -73,7 +73,12 @@ export default function AllExpenses() {
                   <StatusBadge status={e.status} />
                 </td>
                 <td>
-                  <FraudBadge flags={parseFraudFlags(e.fraud_flags)} />
+                  <FraudBadge
+                    flags={parseFraudFlags(e.fraud_flags)}
+                    level={e.fraud_level}
+                    score={e.fraud_score}
+                    summary={e.fraud_summary}
+                  />
                 </td>
                 <td>
                   <Link to={`/expenses/${e.id}`}>View</Link>

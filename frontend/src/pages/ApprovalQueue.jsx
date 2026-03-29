@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { approvalsApi } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -30,15 +31,20 @@ export default function ApprovalQueue() {
 
   const act = async () => {
     if (!modal) return;
+    const c = comments.trim();
+    if (!c) {
+      toast.error('Comment is required');
+      return;
+    }
     setBusy(true);
     try {
-      await approvalsApi.action(modal.id, { action: modal.action, comments: comments || undefined });
+      await approvalsApi.action(modal.id, { action: modal.action, comments: c });
       toast.success(modal.action === 'approve' ? 'Approved' : 'Rejected');
       setModal(null);
       setComments('');
       await load();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Action failed');
+      toast.error(err.response?.data?.message || err.response?.data?.errors?.[0]?.msg || 'Action failed');
     } finally {
       setBusy(false);
     }
@@ -64,7 +70,9 @@ export default function ApprovalQueue() {
           <tbody>
             {rows.map((r) => (
               <tr key={r.id}>
-                <td>{r.title}</td>
+                <td>
+                  {r.expense_id ? <Link to={`/expenses/${r.expense_id}`}>{r.title}</Link> : r.title}
+                </td>
                 <td>{r.employee_name}</td>
                 <td>{r.expense_date}</td>
                 <td>
@@ -105,8 +113,8 @@ export default function ApprovalQueue() {
         }
       >
         <label>
-          Comments (optional)
-          <textarea rows={3} value={comments} onChange={(e) => setComments(e.target.value)} />
+          Comments (required)
+          <textarea rows={3} value={comments} onChange={(e) => setComments(e.target.value)} required />
         </label>
       </Modal>
     </div>

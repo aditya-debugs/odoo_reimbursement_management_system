@@ -67,6 +67,10 @@ export function AuthProvider({ children }) {
       isAdmin: user?.role === 'admin',
       isManager: user?.role === 'manager',
       isEmployee: user?.role === 'employee',
+      isFinancer: user?.role === 'financer',
+      isDirector: user?.role === 'director',
+      canAccessApprovals: ['admin', 'manager', 'financer', 'director'].includes(user?.role),
+      canAccessAnalytics: ['admin', 'manager', 'financer', 'director'].includes(user?.role),
     }),
     [user, company, loading, loadMe]
   );
